@@ -21,40 +21,235 @@
     }
 
     h1 {
-      font-size: 2rem;
-      font-weight: 700;
-      letter-spacing: -0.02em;
+      font-size: 2.2rem;
+      font-weight: 800;
+      letter-spacing: -0.03em;
       margin-bottom: 2rem;
     }
 
+    h2 {
+      font-size: 1.5rem;
+      font-weight: 700;
+      margin-top: 2.5rem;
+      margin-bottom: 1rem;
+      letter-spacing: -0.01em;
+    }
+
+    p {
+      margin-bottom: 1.2rem;
+      font-size: 1.05rem;
+    }
+
+    ul {
+      margin-bottom: 1.5rem;
+      padding-left: 1.5rem;
+    }
+
+    li {
+      margin-bottom: 0.5rem;
+      font-size: 1.05rem;
+    }
+
+    a {
+      color: #3182ce;
+      text-decoration: none;
+    }
+
+    a:hover {
+      text-decoration: underline;
+    }
+
+    pre {
+      background: #2d3748;
+      color: #e2e8f0;
+      padding: 1rem;
+      border-radius: 8px;
+      overflow-x: auto;
+      margin: 1.5rem 0;
+      font-family: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, monospace;
+      font-size: 0.9rem;
+      line-height: 1.5;
+    }
+
+    code {
+      font-family: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, monospace;
+      background: #edf2f7;
+      padding: 0.2rem 0.4rem;
+      border-radius: 4px;
+      font-size: 0.9em;
+      color: #e53e3e;
+    }
+
+    pre code {
+      background: transparent;
+      padding: 0;
+      color: inherit;
+    }
+
     .video-container {
-      position: relative;
       width: 100%;
-      aspect-ratio: 16 / 9;
       border-radius: 12px;
       overflow: hidden;
       box-shadow: 0 4px 24px rgba(0, 0, 0, 0.08);
+      margin: 2rem 0;
     }
 
-    .video-container iframe {
-      position: absolute;
-      top: 0;
-      left: 0;
+    .video-container video {
+      display: block;
       width: 100%;
-      height: 100%;
-      border: none;
+      border-radius: 12px;
     }
   </style>
 </head>
 <body>
   <article>
     <h1>A primer on generating RLVR problems</h1>
+
+    <h2>What's RLVR?</h2>
+    <p>
+      If you are wondering how models jumped from chat to full scope agents capable to automate most developers' jobs (like Lovable, Cursor, Claude Code...), the answer is RLVR.
+    </p>
+    <p>
+      At the core level: it's about putting a model in an environment where it can do stuff and get programmatically rewarded when it does good stuff (a bit like a game if you will).
+    </p>
+
+    <h2>RLVR environments (Gyms)</h2>
+    <p>RLVR environments (also more commonly called a GYM) are composed of 3 things:</p>
+    <ul>
+      <li><strong>The environment's code / space of action for the model:</strong> This can be a simple chat but also tool use so the model can interact with basically anything on your computer (API calls, terminal, computer screen, keyboard...).</li>
+      <li><strong>A curriculum of tasks:</strong> A challenging and useful set of exercises, goals, or prompts we're going to give the model to train it on.</li>
+      <li><strong>A library of graders:</strong> Deterministic code functions that are going to assess task completion.</li>
+    </ul>
+
+    <h2>Are RLVR environments just to make coding agents better?</h2>
+    <p>Yes, but not only (well we hope).</p>
+    <p>
+      The recent focus in the industry is that we can apply this paradigm to other domains and make models get better at all sorts of stuff (2D whiteboarding, 3D design, accountability...). We just need to bring those into verifiable domains.
+    </p>
+
+    <h2>What it looks like in practice</h2>
+    <p>
+      Let's take <a href="https://excalidraw.com/" target="_blank">Excalidraw</a> as an example.
+    </p>
+    <p>
+      In our setup, the model can use Excalidraw on a pre-loaded project. It can interact with the environment only via screenshots (read) and clicks/keystrokes (this modality is called computer use).
+    </p>
+    <p>
+      Here is a fairly basic but actually quite challenging task for Claude 3.5 Sonnet:
+    </p>
+    <ul>
+      <li><em>"Put the yellow circle inside the blue box"</em></li>
+    </ul>
+    
+    <p>Let's watch Claude's attempt at it:</p>
+    
     <div class="video-container">
-      <iframe
-        src="https://screen.studio/share/4IiAVasW"
-        allowfullscreen
-      ></iframe>
+      <video controls preload="metadata">
+        <source src="assets/excalidraw.mp4" type="video/mp4">
+      </video>
     </div>
+
+    <p>... it fails.</p>
+    <p>
+      Now if you reproduce this locally and run it 10 times, you'll see it actually succeeds some of the time. That makes it a perfect candidate task for RLVR—we say it's "calibrated".
+    </p>
+    <p>
+      Notice Claude also hallucinates task completion in this example. That's why we need deterministic graders.
+    </p>
+
+    <h2>But how do we do it?</h2>
+    <p>
+      <strong>Environment state:</strong> Environments need to expose a state we can inspect in code. Luckily for us, Excalidraw relies on JSON.
+    </p>
+
+<pre><code>{
+  "type": "excalidraw",
+  "version": 2,
+  "source": "https://excalidraw.com",
+  "elements": [
+    {
+      "id": "kpnAwthRoc3Z2tJleTyId",
+      "type": "rectangle",
+      "x": 7613.2891571965665,
+      "y": -122.36454202492132,
+      "width": 1852.4609375,
+      "height": 1760.15625,
+      "angle": 0,
+      "strokeColor": "#e03131",
+      "backgroundColor": "#a5d8ff",
+      "fillStyle": "solid",
+      "strokeWidth": 1,
+      "strokeStyle": "solid",
+      "roughness": 0,
+      "opacity": 100,
+      "groupIds": [],
+      "frameId": null,
+      "index": "a3"
+    },
+    {
+      "id": "a11dBNZbnDk4VyJBqSt65",
+      "type": "ellipse",
+      "x": 12792.625094696567,
+      "y": -0.8411045249213203,
+      "width": 1633.9062500000007,
+      "height": 1608.4375,
+      "angle": 0,
+      "strokeColor": "#1971c2",
+      "backgroundColor": "#ffec99",
+      "fillStyle": "solid",
+      "strokeWidth": 1,
+      "strokeStyle": "solid",
+      "roughness": 0,
+      "opacity": 100,
+      "groupIds": [],
+      "frameId": null,
+      "index": "a8"
+    }
+  ]
+}</code></pre>
+
+    <p>So we can inspect the state and actually reward the model using a grader function:</p>
+
+<pre><code class="language-python">def grader(project_excalidraw: dict[str, Any]) -> GraderResult:
+    """
+    Grades an Excalidraw project.
+
+    Rubrics:
+    - has_one_ellipse: Project contains exactly one ellipse
+    - has_one_rectangle: Project contains exactly one rectangle
+    - ellipse_is_yellow: The ellipse has a yellow background (#ffec99)
+    - rectangle_is_blue: The rectangle has a blue background (#a5d8ff)
+    - ellipse_within_rectangle: The ellipse is fully contained within the rectangle
+
+    Value mappings:
+    - "yellow" → #ffec99 (Excalidraw's default yellow)
+    - "blue" → #a5d8ff (Excalidraw's default light blue)
+    """
+    project = ExcalidrawProject(project_excalidraw)
+
+    ellipse = project.get_ellipse()
+    rectangle = project.get_rectangle()
+
+    has_one_ellipse = ellipse is not None
+    has_one_rectangle = rectangle is not None
+    ellipse_is_yellow = ellipse.has_background_color("#ffec99") if ellipse else False
+    rectangle_is_blue = rectangle.has_background_color("#a5d8ff") if rectangle else False
+    ellipse_within_rectangle = ellipse.is_within(rectangle) if ellipse and rectangle else False
+
+    rubrics = {
+        "has_one_ellipse": has_one_ellipse,
+        "has_one_rectangle": has_one_rectangle,
+        "ellipse_is_yellow": ellipse_is_yellow,
+        "rectangle_is_blue": rectangle_is_blue,
+        "ellipse_within_rectangle": ellipse_within_rectangle,
+    }
+
+    grade = 1 if all(rubrics.values()) else 0
+
+    return {"grade": grade, "rubrics": rubrics}</code></pre>
+
+    <p>That's it, we now have a RLVR task. Only 499 to go.</p>
+
   </article>
 </body>
 </html>
