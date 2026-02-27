@@ -230,7 +230,20 @@
 
     return {"grade": grade, "rubrics": rubrics}</code></pre>
 
-    <p>That's it, we now have a RLVR task. If you're able to do 100s of those (or even better build a pipeline to do it for you) you'll have job !</p>
+    <p>That's it, we now have a RLVR task.</p>
+
+    <h2>Building a curriculum of RLVR tasks</h2>
+    <p>LLMs are like students — they need exercises to learn, but a lot of them. One task is not going to cut it, we need to feed thousands.</p>
+    <ul>
+      <li><strong>Too easy:</strong> The model gets bored and won't learn.</li>
+      <li><strong>Too hard:</strong> The model gets frustrated... and won't learn either.</li>
+    </ul>
+    <p>That's why we need tasks in the right difficulty range (like the one above) — and that notion of difficulty is specific to the model we're training.</p>
+    <p><strong>Building a curriculum of tasks is a search problem:</strong> find the intersection of deterministically verifiable tasks, doable but challenging for the model (=difficulty calibrated), and that are aligned with what a human would ask the agent.</p>
+
+    <div style="text-align: center; margin: 2rem 0;">
+      <img src="assets/venn.svg" alt="Venn diagram — intersection of verifiable, calibrated, and human-aligned tasks" style="max-width: 100%; border-radius: 10px;">
+    </div>
 
     <h2>Wait wtf... why are we doing this again?</h2>
     <p><strong>Because this is what it looks like when it works:</strong></p>
