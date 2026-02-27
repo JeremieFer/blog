@@ -1,0 +1,39 @@
+---
+description: Usage inferred rules for writing blog posts
+globs: "**/*.html"
+alwaysApply: true
+---
+
+# Blog Writing Style
+
+## Self-Updating Rule
+- Every time the user asks to edit text, write a paragraph, adjust design, or change formatting, compare the request against this rule file.
+- If the request reveals a new preference not already captured here, append it to the relevant section.
+
+## Formatting
+- Prefer bullet points with **bold lead-in titles** over plain paragraphs (e.g. `<li><strong>Key point:</strong> explanation</li>`)
+- Use `<h2>` sections to break content into scannable chunks
+- Bold introductory phrases on standalone paragraphs when they serve as a label (e.g. `<strong>Environment state:</strong> Environments need to...`)
+- Keep paragraphs short — 1-3 sentences max
+
+## Tone & Voice
+- Casual, conversational, first-person
+- Use contractions, parenthetical asides, and rhetorical questions for flavor
+- Ok to be playful and direct (e.g. "Only 499 to go.", "... it fails.")
+- Not academic — write like you're explaining to a smart friend
+
+## Code Blocks
+- Always use syntax highlighting (highlight.js with `atom-one-dark` theme)
+- Trim code/data to only the essential properties — never dump full verbose output
+- JSON examples should show just enough fields to convey the point
+- Python/code should be real and functional, not pseudocode
+
+## Media & Visuals
+- Use images/GIFs near analogies to make abstract concepts tangible
+- Embed videos natively with `<video>` tag from local assets, not external iframes
+- Center standalone images, apply border-radius for polish
+
+## Page Structure
+- Start with a clear `<h1>` title
+- Build sections as a narrative arc: context → concept → example → proof
+- End with a social/follow section and a call to action

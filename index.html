@@ -4,6 +4,12 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>A primer on generating RLVR problems</title>
+  
+  <!-- Highlight.js for syntax highlighting -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/atom-one-dark.min.css">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+  <script>hljs.highlightAll();</script>
+
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
@@ -60,30 +66,20 @@
     }
 
     pre {
-      background: #2d3748;
-      color: #e2e8f0;
-      padding: 1rem;
       border-radius: 8px;
-      overflow-x: auto;
       margin: 1.5rem 0;
-      font-family: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, monospace;
       font-size: 0.9rem;
-      line-height: 1.5;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
     }
-
-    code {
+    
+    /* Small inline code tweak */
+    :not(pre) > code {
       font-family: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, monospace;
       background: #edf2f7;
       padding: 0.2rem 0.4rem;
       border-radius: 4px;
       font-size: 0.9em;
       color: #e53e3e;
-    }
-
-    pre code {
-      background: transparent;
-      padding: 0;
-      color: inherit;
     }
 
     .video-container {
@@ -99,6 +95,7 @@
       width: 100%;
       border-radius: 12px;
     }
+
   </style>
 </head>
 <body>
@@ -106,37 +103,42 @@
     <h1>A primer on generating RLVR problems</h1>
 
     <h2>What's RLVR?</h2>
-    <p>
-      If you are wondering how models jumped from chat to full scope agents capable to automate most developers' jobs (like Lovable, Cursor, Claude Code...), the answer is RLVR.
-    </p>
-    <p>
-      At the core level: it's about putting a model in an environment where it can do stuff and get programmatically rewarded when it does good stuff (a bit like a game if you will).
-    </p>
-
-    <h2>RLVR environments (Gyms)</h2>
-    <p>RLVR environments (also more commonly called a GYM) are composed of 3 things:</p>
     <ul>
-      <li><strong>The environment's code / space of action for the model:</strong> This can be a simple chat but also tool use so the model can interact with basically anything on your computer (API calls, terminal, computer screen, keyboard...).</li>
+      <li><strong>The breakthrough:</strong> If you are wondering how models jumped from chat to full scope agents capable to automate most developers' jobs (like Lovable, Cursor, Claude Code...), the answer is RLVR.</li>
+      <li><strong>At the core level:</strong> It's about putting a model in an environment where it can take actions and get programmatically rewarded when it reaches a set goal (a bit like a game if you will).</li>
+    </ul>
+
+    <div style="text-align: center; margin: 2rem 0;">
+      <img src="assets/retro-mario.gif" alt="Mario game analogy for RLVR" style="max-width: 100%; border-radius: 8px;">
+    </div>
+
+    <h2>RLVR Gyms</h2>
+    <p>RLVR Gyms (think of little sandboxed environments a model can learn in) are composed of 3 things:</p>
+    <ul>
+      <li><strong>The observation environment:</strong> What's in the sandbox — a simple chat interface, a filesystem, a codebase, or a whole computer desktop.</li>
+      <li><strong>A space of actions:</strong> The tools the model can use to interact with its environment (API calls, terminal commands, mouse clicks, keystrokes...).</li>
       <li><strong>A curriculum of tasks:</strong> A challenging and useful set of exercises, goals, or prompts we're going to give the model to train it on.</li>
       <li><strong>A library of graders:</strong> Deterministic code functions that are going to assess task completion.</li>
     </ul>
 
-    <h2>Are RLVR environments just to make coding agents better?</h2>
-    <p>Yes, but not only (well we hope).</p>
-    <p>
-      The recent focus in the industry is that we can apply this paradigm to other domains and make models get better at all sorts of stuff (2D whiteboarding, 3D design, accountability...). We just need to bring those into verifiable domains.
-    </p>
+    <h2>Beyond coding agents</h2>
+    <p><strong>Are RLVR environments just to make coding agents better?</strong> Yes, but not only (well we hope).</p>
+    <ul>
+      <li><strong>Expanding capabilities:</strong> The recent focus in the industry is that we can apply this paradigm to other than code and make models get better at all sorts of stuff: 2D whiteboarding, 3D design, accountability... your job (sorry).</li>
+      <li><strong>Why it's not done yet:</strong> We need to bring those into verifiable territory.</li>
+    </ul>
 
     <h2>What it looks like in practice</h2>
     <p>
-      Let's take <a href="https://excalidraw.com/" target="_blank">Excalidraw</a> as an example.
+      Let's take <a href="https://excalidraw.com/" target="_blank">Excalidraw</a> (a 2D whiteboarding tool that allows you to draw shapes, lines, and text on a canvas) as an example.
     </p>
-    <p>
-      In our setup, the model can use Excalidraw on a pre-loaded project. It can interact with the environment only via screenshots (read) and clicks/keystrokes (this modality is called computer use).
-    </p>
-    <p>
-      Here is a fairly basic but actually quite challenging task for Claude 4.5 Sonnet:
-    </p>
+    <p>In our setup:</p>
+    <ul>
+      <li><strong>Observation environment:</strong> An Excalidraw canvas with a pre-loaded project.</li>
+      <li><strong>Space of actions:</strong> Screenshots (read) and mouse clicks / keystrokes (write). This modality is called computer use.</li>
+    </ul>
+    <p><strong>Now we got to give him tasks to do.</strong></p>
+    <p>Here is a fairly basic but actually quite challenging one for Claude 4.5 Opus:</p>
     <ul>
       <li><em>"Put the yellow circle inside the blue box"</em></li>
     </ul>
@@ -151,64 +153,44 @@
 
     <p>... it fails.</p>
     <p>
-      Now if you reproduce this locally and run it 10 times, you'll see it actually succeeds some of the time. That makes it a perfect candidate task for RLVR—we say it's "calibrated".
+      Now if you reproduce this locally and run it 10 times, you'll see it actually succeeds some of the time. That makes it a perfect candidate task for RLVR—we say it's <strong>"calibrated"</strong>.
     </p>
     <p>
-      Notice Claude also hallucinates task completion in this example. That's why we need deterministic graders.
+      Notice Claude also hallucinates task completion in this example. <strong>That's why we need deterministic graders.</strong>
     </p>
 
-    <h2>But how do we do it?</h2>
+    <h2>But how do grade it ?</h2>
+    <p><strong>Environment state:</strong></p>
+    <p>Environments need to expose a state we can inspect in code. Luckily for us, Excalidraw relies on JSON!</p>
     <p>
-      <strong>Environment state:</strong> Environments need to expose a state we can inspect in code. Luckily for us, Excalidraw relies on JSON.
+      <strong>This typically looks like:</strong>
     </p>
-
-<pre><code>{
+<pre><code class="language-json">{
   "type": "excalidraw",
-  "version": 2,
-  "source": "https://excalidraw.com",
   "elements": [
     {
-      "id": "kpnAwthRoc3Z2tJleTyId",
       "type": "rectangle",
-      "x": 7613.2891571965665,
-      "y": -122.36454202492132,
-      "width": 1852.4609375,
-      "height": 1760.15625,
-      "angle": 0,
-      "strokeColor": "#e03131",
       "backgroundColor": "#a5d8ff",
-      "fillStyle": "solid",
-      "strokeWidth": 1,
-      "strokeStyle": "solid",
-      "roughness": 0,
-      "opacity": 100,
-      "groupIds": [],
-      "frameId": null,
-      "index": "a3"
+      "x": 7613.28,
+      "y": -122.36,
+      "width": 1852.46,
+      "height": 1760.15
     },
     {
-      "id": "a11dBNZbnDk4VyJBqSt65",
       "type": "ellipse",
-      "x": 12792.625094696567,
-      "y": -0.8411045249213203,
-      "width": 1633.9062500000007,
-      "height": 1608.4375,
-      "angle": 0,
-      "strokeColor": "#1971c2",
       "backgroundColor": "#ffec99",
-      "fillStyle": "solid",
-      "strokeWidth": 1,
-      "strokeStyle": "solid",
-      "roughness": 0,
-      "opacity": 100,
-      "groupIds": [],
-      "frameId": null,
-      "index": "a8"
+      "x": 12792.62,
+      "y": -0.84,
+      "width": 1633.90,
+      "height": 1608.43
     }
   ]
 }</code></pre>
 
-    <p>So we can inspect the state and actually reward the model using a grader function:</p>
+    <p><strong>Now let's see about our graders.</strong> The agent attempted the task, we have our end state... time to grade it.</p>
+    <ul>
+      <li><strong>Grader:</strong> A function that is going to reward (or not) the agent after a task attempt.</li>
+    </ul>
 
 <pre><code class="language-python">def grader(project_excalidraw: dict[str, Any]) -> GraderResult:
     """
@@ -248,7 +230,30 @@
 
     return {"grade": grade, "rubrics": rubrics}</code></pre>
 
-    <p>That's it, we now have a RLVR task calibrated for Claude 4.5 Sonnet.</p>
+    <p>That's it, we now have a RLVR task. If you're able to do 100s of those (or even better build a pipeline to do it for you) you'll have job !</p>
+
+    <h2>Wait wtf... why are we doing this again?</h2>
+    <p><strong>Because this is what it looks like when it works:</strong></p>
+
+    <div style="text-align: center; margin: 2rem 0;">
+      <img src="https://raw.githubusercontent.com/excalidraw/excalidraw-mcp/main/docs/demo.gif" alt="Excalidraw MCP App demo — Claude drawing diagrams live" style="max-width: 100%; border-radius: 10px; box-shadow: 0 4px 16px rgba(0,0,0,0.1);">
+    </div>
+    <p style="font-size: 0.9rem; color: #718096; text-align: center;">
+      Credit: <a href="https://github.com/antonpk1" target="_blank">Anton Pidkuiko</a> — <a href="https://github.com/excalidraw/excalidraw-mcp" target="_blank">excalidraw-mcp</a>
+    </p>
+
+    <p><em>Note: Ok so it's not raw computer use — this Claude is using an MCP. But you get the idea.</em></p>
+
+    <p>-> beyond Excalidraw, models will be able to autonomously operate anything on your computer — Anthropic is already shipping this with <a href="https://claude.com/blog/cowork-research-preview" target="_blank">Cowork</a>.</p>
+
+    
+
+    <h2>Get in touch</h2>
+    <ul>
+      <li>I don't know him personally, but <strong>Will Brown</strong> puts out great content on this: <a href="https://x.com/willccbb" target="_blank">@willccbb</a></li>
+      <li>Or alternatively, my modest self: <a href="https://x.com/jayyiron" target="_blank">@jayyiron</a></li>
+    </ul>
+    <p><em>→ Seriously, do DM me if you want to work on this!</em></p>
 
   </article>
 </body>
